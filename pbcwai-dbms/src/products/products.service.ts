@@ -27,13 +27,11 @@ export class ProductsService {
     // or a local ".env" file; throw an exception if the user didn't declare
     // either of those for us; ideally the app would actually shutdown then.
     const maybeDataFilePath = this.configService.get<string>('DATA_FILE_PATH');
-    if (typeof maybeDataFilePath !== 'string') {
-      throw new Error('Environment variable DATA_FILE_PATH must be a non-empty string.');
+    if (!this.isNonEmptyString(maybeDataFilePath)) {
+      throw new Error(
+        'Environment variable DATA_FILE_PATH must be a non-empty string.');
     }
-    this.dataFilePath = maybeDataFilePath.trim();
-    if (this.dataFilePath === '') {
-      throw new Error('Environment variable DATA_FILE_PATH must be a non-empty string.');
-    }
+    this.dataFilePath = (maybeDataFilePath ?? '').trim();
     console.log('ProductsService.constructor():'
       + ' DATA_FILE_PATH is "' + this.dataFilePath + '"');
   }
@@ -185,7 +183,8 @@ export class ProductsService {
 
   createOne(createProductDto: CreateProductDto) {
     if (!this.isProductSansProductNumber(createProductDto)) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        "request body doesn't match the format of a Product sans productNumber");
     }
     const products: Array<UpdateProductDto> = this.readDataFile();
     const product: UpdateProductDto = {
@@ -207,32 +206,38 @@ export class ProductsService {
 
   fetchOne(productNumber: string): UpdateProductDto {
     if (!this.isNonEmptyString(productNumber)) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        "productNumber (ignoring spaces) isn't a non-empty string");
     }
     const products: Array<UpdateProductDto> = this.readDataFile();
     const maybeIndexOfMatchingProduct
       = this.maybeIndexOfMatchingProduct(products, productNumber);
     if (maybeIndexOfMatchingProduct === -1) {
-      throw new NotFoundException();
+      throw new NotFoundException(
+        "no Product found matching given productNumber");
     }
     return this.productAtIndex(products, maybeIndexOfMatchingProduct);
   }
 
   updateOne(productNumber: string, updateProductDto: UpdateProductDto) {
     if (!this.isNonEmptyString(productNumber)) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        "productNumber (ignoring spaces) isn't a non-empty string");
     }
     if (!this.isProduct(updateProductDto)) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        "request body doesn't match the format of a Product");
     }
     if (updateProductDto.productNumber !== productNumber) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        "productNumbers in url and request body don't match");
     }
     const products: Array<UpdateProductDto> = this.readDataFile();
     const maybeIndexOfMatchingProduct
       = this.maybeIndexOfMatchingProduct(products, productNumber);
     if (maybeIndexOfMatchingProduct === -1) {
-      throw new NotFoundException();
+      throw new NotFoundException(
+        "no Product found matching given productNumber");
     }
     products.splice(maybeIndexOfMatchingProduct, 1, updateProductDto);
     this.writeDataFile(products);
@@ -240,13 +245,15 @@ export class ProductsService {
 
   removeOne(productNumber: string) {
     if (!this.isNonEmptyString(productNumber)) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        "productNumber (ignoring spaces) isn't a non-empty string");
     }
     const products: Array<UpdateProductDto> = this.readDataFile();
     const maybeIndexOfMatchingProduct
       = this.maybeIndexOfMatchingProduct(products, productNumber);
     if (maybeIndexOfMatchingProduct === -1) {
-      throw new NotFoundException();
+      throw new NotFoundException(
+        "no Product found matching given productNumber");
     }
     products.splice(maybeIndexOfMatchingProduct, 1);
     this.writeDataFile(products);

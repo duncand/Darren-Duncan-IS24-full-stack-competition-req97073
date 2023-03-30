@@ -26,7 +26,7 @@ export class ProductsController {
     description: 'Created a new Product with a generated productNumber',
   })
   @ApiBadRequestResponse({
-    description: 'Given productNumber or request body is not of a valid format'
+    description: 'Given request body is not of a valid format'
   })
   createOne(@Body() createProductDto: CreateProductDto) {
     return this.productsService.createOne(createProductDto);
@@ -58,7 +58,7 @@ export class ProductsController {
     description: 'No Product found matching given productNumber'
   })
   fetchOne(@Param('productNumber') productNumber: string): UpdateProductDto {
-    return this.productsService.fetchOne(productNumber);
+    return this.productsService.fetchOne(decodeURIComponent(productNumber));
   }
 
   @Put(':productNumber')
@@ -71,13 +71,15 @@ export class ProductsController {
   })
   @ApiBadRequestResponse({
     description: 'Given productNumber or request body is not of a valid format'
+      + " or productNumbers in url and body don't match"
   })
   @ApiNotFoundResponse({
     description: 'No Product found matching given productNumber'
   })
   updateOne(@Param('productNumber') productNumber: string,
       @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.updateOne(productNumber, updateProductDto);
+    return this.productsService.updateOne(
+      decodeURIComponent(productNumber), updateProductDto);
   }
 
   @Delete(':productNumber')
@@ -95,6 +97,6 @@ export class ProductsController {
     description: 'No Product found matching given productNumber'
   })
   removeOne(@Param('productNumber') productNumber: string) {
-    return this.productsService.removeOne(productNumber);
+    return this.productsService.removeOne(decodeURIComponent(productNumber));
   }
 }
