@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -32,20 +34,107 @@ export class ProductsService {
       + ' DATA_FILE_PATH is "' + this.dataFilePath + '"');
   }
 
+  private isNonEmptyString(given: any): boolean {
+    return (typeof given === 'string') && given.trim() !== '';
+  }
+
+  private isProductMaybeSansProductNumber(given: any): boolean {
+    if (typeof given !== 'object') {
+      return false;
+    }
+    if (!given.hasOwnProperty('productName')
+        || !this.isNonEmptyString(given.productName)
+        || !given.hasOwnProperty('scrumMasterName')
+        || !this.isNonEmptyString(given.scrumMasterName)
+        || !given.hasOwnProperty('productOwnerName')
+        || !this.isNonEmptyString(given.productOwnerName)
+        || !given.hasOwnProperty('developerNames')
+        || !Array.isArray(given.developerNames)
+        || !given.hasOwnProperty('startDate')
+        || !this.isNonEmptyString(given.startDate)
+        || !given.hasOwnProperty('methodology')
+        || !this.isNonEmptyString(given.methodology)) {
+      return false;
+    }
+    const developerNames: Array<any> = given.developerNames;
+    if (developerNames.length < 1 || developerNames.length > 5
+        || !developerNames.every((elem) => this.isNonEmptyString(elem))) {
+      return false;
+    }
+    return true;
+  }
+
+  private isProductSansProductNumber(given: any): boolean {
+    return this.isProductMaybeSansProductNumber(given)
+      && Object.keys(given).length === 6;
+  }
+
+  private isProduct(given: any): boolean {
+    return this.isProductMaybeSansProductNumber(given)
+      && Object.keys(given).length === 7
+      && given.hasOwnProperty('productNumber')
+      && this.isNonEmptyString(given.productNumber);
+  }
+
+  private isArrayOfProduct(given: any): boolean {
+    if (!Array.isArray(given)) {
+      return false;
+    }
+    if (!given.every((elem) => this.isProduct(elem))) {
+      return false;
+    }
+    const productNumbers = given.map((elem) => elem.productNumber);
+    if ((new Set(productNumbers)).size !== productNumbers.length) {
+      return false;
+    }
+    return true;
+  }
+
+  private readDataFile(): Array<UpdateProductDto> {
+    var dataFileAsText;
+    try {
+      dataFileAsText = fs.readFileSync(this.dataFilePath, 'utf8');
+      console.log('ProductsService.readDataFile():'
+        + ' successful read of data file as text from "' + this.dataFilePath + '"');
+    }
+    catch (e) {
+      console.log('ProductsService.readDataFile():'
+        + ' failure to read data file as text from "' + this.dataFilePath + '"');
+      // For now just propagate out and produce generic 500 API response.
+      throw e;
+    }
+    var dataFileAsAny;
+    try {
+      dataFileAsAny = JSON.parse(dataFileAsText);
+      console.log('ProductsService.readDataFile():'
+        + ' successful parse of data file as JSON from "' + this.dataFilePath + '"');
+    }
+    catch (e) {
+      console.log('ProductsService.readDataFile():'
+        + ' failure to parse data file text as JSON from "' + this.dataFilePath + '"');
+      // For now just propagate out and produce generic 500 API response.
+      throw e;
+    }
+    if (!this.isArrayOfProduct(dataFileAsAny)) {
+      const msg: string = 'ProductsService.readDataFile():'
+        + ' data file is not Array of Product from "' + this.dataFilePath + '"';
+      console.log(msg);
+      // For now just propagate out and produce generic 500 API response.
+      throw new Error(msg);
+    }
+    else {
+      console.log('ProductsService.readDataFile():'
+        + ' data file is an Array of Product from "' + this.dataFilePath + '"');
+    }
+    return dataFileAsAny;
+  }
+
   createOne(createProductDto: CreateProductDto) {
     return 'This action adds a new product';
   }
 
-  fetchAll() {
-    return [
-      {
-        productNumber: '12345',
-      },
-      {
-        productNumber: '6789',
-      },
-    ];
-    return `This action returns all products`;
+  fetchAll(): Array<UpdateProductDto> {
+    return this.readDataFile();
   }
 
   fetchOne(productNumber: string): UpdateProductDto {
