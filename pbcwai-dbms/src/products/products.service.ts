@@ -81,17 +81,13 @@ export class ProductsService {
   }
 
   private isArrayOfProduct(given: any): boolean {
-    if (!Array.isArray(given)) {
-      return false;
-    }
-    if (!given.every((elem) => this.isProduct(elem))) {
-      return false;
-    }
-    const productNumbers = given.map((elem) => elem.productNumber);
-    if ((new Set(productNumbers)).size !== productNumbers.length) {
-      return false;
-    }
-    return true;
+    return (Array.isArray(given)
+      && given.every((elem) => this.isProduct(elem)));
+  }
+
+  private allProductNumbersAreDistinct(products: Array<UpdateProductDto>): boolean {
+    const productNumbers = products.map((elem) => elem.productNumber);
+    return ((new Set(productNumbers)).size === productNumbers.length);
   }
 
   private readDataFile(): Array<UpdateProductDto> {
@@ -122,7 +118,38 @@ export class ProductsService {
       // This should result in a generic 500 API response.
       throw new Error(msg);
     }
+    if (!this.allProductNumbersAreDistinct(dataFileAsAny)) {
+      const msg: string = 'ProductsService.readDataFile():'
+        + ' data file Products not all distinct productNumbers'
+        + ' from "' + this.dataFilePath + '"';
+      console.log(msg);
+      // This should result in a generic 500 API response.
+      throw new Error(msg);
+    }
     return dataFileAsAny;
+  }
+
+  private writeDataFile(products: Array<UpdateProductDto>): void {
+    var dataFileAsText;
+    try {
+      // Serialize pretty-printed with indentations of 2 spaces per level.
+      dataFileAsText = JSON.stringify(products, null, 2);
+    }
+    catch (e) {
+      console.log('ProductsService.readDataFile():'
+        + ' failure to serialize data file text as JSON to "' + this.dataFilePath + '"');
+      // This should result in a generic 500 API response.
+      throw e;
+    }
+    try {
+      fs.writeFileSync(this.dataFilePath, dataFileAsText, 'utf8');
+    }
+    catch (e) {
+      console.log('ProductsService.readDataFile():'
+        + ' failure to write data file as text to "' + this.dataFilePath + '"');
+      // This should result in a generic 500 API response.
+      throw e;
+    }
   }
 
   private maybeIndexOfMatchingProduct(
@@ -140,12 +167,38 @@ export class ProductsService {
     return products.at(index) ?? new UpdateProductDto();
   }
 
+  private generateDistinctProductNumber(products: Array<UpdateProductDto>): string {
+    // We will use a simple generator algorithm, that takes the rounded
+    // result of multiplying the current UNIX timestamp in milliseconds
+    // by a pseudo-random number, then modulo 2^16 so its easier to read,
+    // to generate a productNumber.
+    // As a guard for the tiny possibility of a collision with
+    // an existing productNumber, in the event of a collision we will
+    // append an "x" repeatedly until there isn't a collision.
+    var productNumber: string
+      = (Math.floor(Date.now() * Math.random()) % (2**16)).toString();
+    while (this.maybeIndexOfMatchingProduct(products, productNumber) !== -1) {
+      productNumber = productNumber + 'x';
+    }
+    return productNumber;
+  }
+
   createOne(createProductDto: CreateProductDto) {
     if (!this.isProductSansProductNumber(createProductDto)) {
       throw new BadRequestException();
     }
-
-    return 'This action adds a new product';
+    const products: Array<UpdateProductDto> = this.readDataFile();
+    const product: UpdateProductDto = {
+      "productNumber": this.generateDistinctProductNumber(products),
+      "productName": createProductDto.productName,
+      "scrumMasterName": createProductDto.scrumMasterName,
+      "productOwnerName": createProductDto.productOwnerName,
+      "developerNames": createProductDto.developerNames,
+      "startDate": createProductDto.startDate,
+      "methodology": createProductDto.methodology,
+    };
+    products.push(product);
+    this.writeDataFile(products);
   }
 
   fetchAll(): Array<UpdateProductDto> {
@@ -181,8 +234,8 @@ export class ProductsService {
     if (maybeIndexOfMatchingProduct === -1) {
       throw new NotFoundException();
     }
-
-    return `This action updates a ${productNumber} product`;
+    products.splice(maybeIndexOfMatchingProduct, 1, updateProductDto);
+    this.writeDataFile(products);
   }
 
   removeOne(productNumber: string) {
@@ -195,7 +248,7 @@ export class ProductsService {
     if (maybeIndexOfMatchingProduct === -1) {
       throw new NotFoundException();
     }
-
-    return `This action removes a ${productNumber} product`;
+    products.splice(maybeIndexOfMatchingProduct, 1);
+    this.writeDataFile(products);
   }
 }
