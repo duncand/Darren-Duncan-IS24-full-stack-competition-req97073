@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 
@@ -129,6 +129,21 @@ export class ProductsService {
     return dataFileAsAny;
   }
 
+  private maybeIndexOfMatchingProduct(
+      products: Array<UpdateProductDto>, productNumber: string)
+      : number {
+    return products.findIndex((elem) => elem.productNumber === productNumber);
+  }
+
+  private productAtIndex(products: Array<UpdateProductDto>, index: number)
+      : UpdateProductDto {
+    // We assume productAtIndex() is called exclusively on inputs
+    // for which maybeIndexOfMatchingProduct() had a successful find.
+    // The "?? new UpdateProductDto()" is only here because strict
+    // TypeScript would complain about trying to assign X|undefined to X.
+    return products.at(index) ?? new UpdateProductDto();
+  }
+
   createOne(createProductDto: CreateProductDto) {
     return 'This action adds a new product';
   }
@@ -138,9 +153,13 @@ export class ProductsService {
   }
 
   fetchOne(productNumber: string): UpdateProductDto {
-    return {
-      productNumber: '12345',
-    };
+    const products: Array<UpdateProductDto> = this.readDataFile();
+    const maybeIndexOfMatchingProduct
+      = this.maybeIndexOfMatchingProduct(products, productNumber);
+    if (maybeIndexOfMatchingProduct === -1) {
+      throw new NotFoundException();
+    }
+    return this.productAtIndex(products, maybeIndexOfMatchingProduct);
   }
 
   updateOne(productNumber: string, updateProductDto: UpdateProductDto) {
