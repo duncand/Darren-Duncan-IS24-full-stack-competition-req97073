@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 
@@ -94,37 +98,29 @@ export class ProductsService {
     var dataFileAsText;
     try {
       dataFileAsText = fs.readFileSync(this.dataFilePath, 'utf8');
-      console.log('ProductsService.readDataFile():'
-        + ' successful read of data file as text from "' + this.dataFilePath + '"');
     }
     catch (e) {
       console.log('ProductsService.readDataFile():'
         + ' failure to read data file as text from "' + this.dataFilePath + '"');
-      // For now just propagate out and produce generic 500 API response.
+      // This should result in a generic 500 API response.
       throw e;
     }
     var dataFileAsAny;
     try {
       dataFileAsAny = JSON.parse(dataFileAsText);
-      console.log('ProductsService.readDataFile():'
-        + ' successful parse of data file as JSON from "' + this.dataFilePath + '"');
     }
     catch (e) {
       console.log('ProductsService.readDataFile():'
         + ' failure to parse data file text as JSON from "' + this.dataFilePath + '"');
-      // For now just propagate out and produce generic 500 API response.
+      // This should result in a generic 500 API response.
       throw e;
     }
     if (!this.isArrayOfProduct(dataFileAsAny)) {
       const msg: string = 'ProductsService.readDataFile():'
         + ' data file is not Array of Product from "' + this.dataFilePath + '"';
       console.log(msg);
-      // For now just propagate out and produce generic 500 API response.
+      // This should result in a generic 500 API response.
       throw new Error(msg);
-    }
-    else {
-      console.log('ProductsService.readDataFile():'
-        + ' data file is an Array of Product from "' + this.dataFilePath + '"');
     }
     return dataFileAsAny;
   }
@@ -145,6 +141,10 @@ export class ProductsService {
   }
 
   createOne(createProductDto: CreateProductDto) {
+    if (!this.isProductSansProductNumber(createProductDto)) {
+      throw new BadRequestException();
+    }
+
     return 'This action adds a new product';
   }
 
@@ -153,6 +153,9 @@ export class ProductsService {
   }
 
   fetchOne(productNumber: string): UpdateProductDto {
+    if (!this.isNonEmptyString(productNumber)) {
+      throw new BadRequestException();
+    }
     const products: Array<UpdateProductDto> = this.readDataFile();
     const maybeIndexOfMatchingProduct
       = this.maybeIndexOfMatchingProduct(products, productNumber);
@@ -163,10 +166,36 @@ export class ProductsService {
   }
 
   updateOne(productNumber: string, updateProductDto: UpdateProductDto) {
+    if (!this.isNonEmptyString(productNumber)) {
+      throw new BadRequestException();
+    }
+    if (!this.isProduct(updateProductDto)) {
+      throw new BadRequestException();
+    }
+    if (updateProductDto.productNumber !== productNumber) {
+      throw new BadRequestException();
+    }
+    const products: Array<UpdateProductDto> = this.readDataFile();
+    const maybeIndexOfMatchingProduct
+      = this.maybeIndexOfMatchingProduct(products, productNumber);
+    if (maybeIndexOfMatchingProduct === -1) {
+      throw new NotFoundException();
+    }
+
     return `This action updates a ${productNumber} product`;
   }
 
   removeOne(productNumber: string) {
+    if (!this.isNonEmptyString(productNumber)) {
+      throw new BadRequestException();
+    }
+    const products: Array<UpdateProductDto> = this.readDataFile();
+    const maybeIndexOfMatchingProduct
+      = this.maybeIndexOfMatchingProduct(products, productNumber);
+    if (maybeIndexOfMatchingProduct === -1) {
+      throw new NotFoundException();
+    }
+
     return `This action removes a ${productNumber} product`;
   }
 }

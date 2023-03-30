@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -24,6 +25,9 @@ export class ProductsController {
   @ApiCreatedResponse({
     description: 'Created a new Product with a generated productNumber',
   })
+  @ApiBadRequestResponse({
+    description: 'Given productNumber or request body is not of a valid format'
+  })
   createOne(@Body() createProductDto: CreateProductDto) {
     return this.productsService.createOne(createProductDto);
   }
@@ -47,6 +51,9 @@ export class ProductsController {
   @ApiOkResponse({
     description: 'Fetched an existing Product matching given productNumber'
   })
+  @ApiBadRequestResponse({
+    description: 'Given productNumber is not of a valid format'
+  })
   @ApiNotFoundResponse({
     description: 'No Product found matching given productNumber'
   })
@@ -61,6 +68,9 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Updated an existing Product matching given productNumber'
+  })
+  @ApiBadRequestResponse({
+    description: 'Given productNumber or request body is not of a valid format'
   })
   @ApiNotFoundResponse({
     description: 'No Product found matching given productNumber'
@@ -77,6 +87,9 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Removed an existing Product matching given productNumber'
+  })
+  @ApiBadRequestResponse({
+    description: 'Given productNumber is not of a valid format'
   })
   @ApiNotFoundResponse({
     description: 'No Product found matching given productNumber'
