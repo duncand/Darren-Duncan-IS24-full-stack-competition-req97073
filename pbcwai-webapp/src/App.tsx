@@ -90,7 +90,6 @@ function ProductsTable({ products }: ProductsProps) {
   );
   const tableRows = products.map((product) =>
     <tr key={product.productNumber}>
-      <td><Link to={'/view/' + product.productNumber}>View</Link></td>
       <td><Link to={'/edit/' + product.productNumber}>Edit</Link></td>
       <td><Link to={'/delete/' + product.productNumber}>Delete</Link></td>
       <td>{product.productNumber}</td>
@@ -430,14 +429,6 @@ function ViewAllProductsPage() {
   );
 }
 
-function ViewOneProductPage() {
-  return (
-    <>
-    view one product
-    </>
-  );
-}
-
 function CreateOneProductPage() {
   const [productName, assignTo_productName] = useState('');
   const [scrumMasterName, assignTo_scrumMasterName] = useState('');
@@ -610,11 +601,52 @@ function handleProductEditFormSubmit(event: React.FormEvent<HTMLFormElement>) {
 }
 
 function DeleteOneProductPage() {
+  const { productNumber } = useParams();
   return (
     <>
-    delete one product
+      <h2>Delete a product</h2>
+      <p><Link to={'/'}>Return</Link> to the product listing page.</p>
+      <form onSubmit={handleProductDeleteFormSubmit}>
+        <table>
+          <tbody>
+            <tr>
+              <td>Product Number:</td>
+              <td><input
+                type="text"
+                id="productNumber"
+                name="productNumber"
+                value={productNumber}
+                readOnly
+                /></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><button type="submit">Delete If You're Sure</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
     </>
   );
+}
+
+function handleProductDeleteFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  // Prevent page from submitting.
+  event.preventDefault();
+  const productNumber = (document.getElementById('productNumber') as HTMLInputElement).value.trim();
+  console.log('delete button clicked with'+productNumber);
+  fetch('http://localhost:3000/api/products/'+productNumber+'/', {
+      method: 'DELETE',
+    })
+    //.then((response) => response.json())
+    .then((data) => {
+      alert('Product was deleted.');
+    })
+    .catch((err) => {
+      alert('Failed to delete product: ' + err.message
+        + ' see console for details');
+      console.log(err.message);
+    });
 }
 
 function App() {
@@ -625,7 +657,6 @@ function App() {
       <Routes>
         <Route path="/create" element={<CreateOneProductPage />} />
         <Route path="/" element={<ViewAllProductsPage />} />
-        <Route path="/view/:productNumber" element={<ViewOneProductPage />} />
         <Route path="/edit/:productNumber" element={<EditOneProductPage />} />
         <Route path="/delete/:productNumber" element={<DeleteOneProductPage />} />
       </Routes>
