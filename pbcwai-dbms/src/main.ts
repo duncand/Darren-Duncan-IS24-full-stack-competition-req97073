@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Request, Response, NextFunction } from 'express';
 
 import { AppModule } from './app.module';
 
@@ -12,6 +13,14 @@ async function bootstrap() {
   // Assign global url path prefix to all endpoints.
   // So then otherwise-unqalified "products" is under /api/products and so on.
   app.setGlobalPrefix('/api');
+
+  // Widening the allowed origins from the default is required in order for
+  // our client PBCWAI-WEBAPP on port 8080 to not be denied access with
+  // "...is not allowed by access-control-allow-origin. status code 200".
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+  });
 
   // Generate Swagger docs from the implementing code.
   // This produces multiple endpoints, each with a different format of the docs:
