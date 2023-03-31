@@ -1,38 +1,9 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter, Routes, Route, Link
 } from 'react-router-dom';
 
 import './App.css';
-
-const PRODUCTS = [
-  {
-    "productNumber": "12345x",
-    "productName": "The Project With No Name",
-    "scrumMasterName": "John Doe",
-    "productOwnerName": "Jane Doe",
-    "developerNames": [
-      "Larry",
-      "Curly",
-      "Moe"
-    ],
-    "startDate": "2023/03/31",
-    "methodology": "Waterfall"
-  },
-  {
-    "productNumber": "12345",
-    "productName": "The Project With No Name",
-    "scrumMasterName": "John Doe",
-    "productOwnerName": "Jane Doe",
-    "developerNames": [
-      "Larry",
-      "Curly",
-      "Moe"
-    ],
-    "startDate": "2023/03/31",
-    "methodology": "Waterfall"
-  }
-];
 
 interface ProductProps {
   productNumber: string;
@@ -49,7 +20,6 @@ interface ProductsProps {
 }
 
 function ProductsTable({ products }: ProductsProps) {
-  const [x1, x2] = React.useState(3);
   const tableHeading = (
     <tr>
       <th></th>
@@ -65,7 +35,7 @@ function ProductsTable({ products }: ProductsProps) {
     </tr>
   );
   const tableRows = products.map((product) =>
-    <tr>
+    <tr key={product.productNumber}>
       <td><Link to={'/view/' + product.productNumber}>View</Link></td>
       <td><Link to={'/edit/' + product.productNumber}>Edit</Link></td>
       <td><Link to={'/delete/' + product.productNumber}>Delete</Link></td>
@@ -80,8 +50,12 @@ function ProductsTable({ products }: ProductsProps) {
   );
   return (
     <table>
-      {tableHeading}
-      {tableRows}
+      <thead>
+        {tableHeading}
+      </thead>
+      <tbody>
+        {tableRows}
+      </tbody>
     </table>
   )
 }
@@ -95,8 +69,20 @@ function CreateOneProductPage() {
 }
 
 function ViewAllProductsPage() {
+  const [products, assignToProducts] = useState([]);
+  useEffect(() => {
+    fetch('http://localhost:3000/api/products')
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        assignToProducts(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
   return (
-    <ProductsTable products={PRODUCTS} />
+    <ProductsTable products={products} />
   );
 }
 
