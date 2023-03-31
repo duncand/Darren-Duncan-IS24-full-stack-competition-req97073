@@ -1,0 +1,16 @@
+[
+  {
+    "productNumber": "12345",
+    "productName": "The Project With No Name",
+    "scrumMasterName": "John Doe",
+    "productOwnerName": "Jane Doe",
+    "developerNames": [
+      "Larry",
+      "Curly",
+      "Moe"
+    ],
+    "startDate": "2023/03/31",
+    "methodology": "Waterfall"
+  }
+]
+
