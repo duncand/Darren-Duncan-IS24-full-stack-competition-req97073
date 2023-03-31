@@ -9,6 +9,9 @@ import {
 
 import './App.css';
 
+// Note, for any uses of useEffect(), providing the second "optional" arg
+// even if the empty array is necessary to avoid infinite useEffect() calls.
+
 const EMPTY_PRODUCT = {
   "productNumber": "",
   "productName": "",
@@ -149,7 +152,7 @@ function ViewAllProductsPage() {
       .catch((err) => {
         console.log(err.message);
       });
-  });
+  }, []);
   return (
     <ProductsTable products={products} />
   );
@@ -181,7 +184,7 @@ function EditOneProductPage() {
       .catch((err) => {
         console.log(err.message);
       });
-  });
+  }, []);
   return (
     <ProductEditForm product={productE} />
   );
