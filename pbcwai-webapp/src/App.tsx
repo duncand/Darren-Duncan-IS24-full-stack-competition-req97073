@@ -75,6 +75,7 @@ interface ProductEditProps {
 
 function ProductsTable({ products }: ProductsProps) {
   const [scrumSearchName, assignTo_scrumSearchName] = useState('');
+  const [devSearchName, assignTo_devSearchName] = useState('');
   const tableHeading = (
     <tr>
       <th></th>
@@ -92,6 +93,10 @@ function ProductsTable({ products }: ProductsProps) {
   if (scrumSearchName !== '') {
     filteredProducts = filteredProducts.filter(
       (elem) => elem.scrumMasterName === scrumSearchName);
+  }
+  if (devSearchName !== '') {
+    filteredProducts = filteredProducts.filter(
+      (elem) => elem.developerNames.some((elem) => elem === devSearchName));
   }
   const tableRows = filteredProducts.map((product) =>
     <tr key={product.productNumber}>
@@ -116,6 +121,13 @@ function ProductsTable({ products }: ProductsProps) {
                 name="scrumSearchName"
                 value={scrumSearchName}
                 onChange={(e) => assignTo_scrumSearchName(e.target.value)}
+                /></p>
+      <p>Filter on Developer: <input
+                type="text"
+                id="devSearchName"
+                name="devSearchName"
+                value={devSearchName}
+                onChange={(e) => assignTo_devSearchName(e.target.value)}
                 /></p>
       <table>
         <thead>
