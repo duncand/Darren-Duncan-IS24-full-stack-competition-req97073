@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import {
-  BrowserRouter, Routes, Route, Link
+  BrowserRouter,
+  Link,
+  Route,
+  Routes,
+  useParams,
 } from 'react-router-dom';
 
 import './App.css';
 
-interface ProductProps {
+const EMPTY_PRODUCT = {
+  "productNumber": "",
+  "productName": "",
+  "scrumMasterName": "",
+  "productOwnerName": "",
+  "developerNames": [],
+  "startDate": "",
+  "methodology": ""
+};
+
+interface Product {
   productNumber: string;
   productName: string;
   scrumMasterName: string;
@@ -15,8 +29,12 @@ interface ProductProps {
   methodology: string;
 }
 
+interface ProductProps {
+  product: Product;
+}
+
 interface ProductsProps {
-  products: Array<ProductProps>;
+  products: Array<Product>;
 }
 
 function ProductsTable({ products }: ProductsProps) {
@@ -49,23 +67,75 @@ function ProductsTable({ products }: ProductsProps) {
     </tr>
   );
   return (
-    <table>
-      <thead>
-        {tableHeading}
-      </thead>
-      <tbody>
-        {tableRows}
-      </tbody>
-    </table>
+    <>
+      <p>Total of {products.length} products displayed.</p>
+      <p><Link to={'/create'}>Add</Link> a new product.</p>
+      <table>
+        <thead>
+          {tableHeading}
+        </thead>
+        <tbody>
+          {tableRows}
+        </tbody>
+      </table>
+    </>
   )
 }
 
-function CreateOneProductPage() {
+function ProductCreateForm() {
   return (
     <>
-    create one product
+      <h2>Add a product</h2>
+      <p><Link to={'/'}>Return</Link> to the product listing page.</p>
+      <form>
+        <table>
+          <tbody>
+            <tr>
+              <td>Product Name:</td>
+              <td><input
+                type="text"
+                id="productName"
+                name="productName"
+                /></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
     </>
-  );
+  )
+}
+
+function ProductEditForm({ product }: ProductProps) {
+  return (
+    <>
+      <h2>Edit a product</h2>
+      <p><Link to={'/'}>Return</Link> to the product listing page.</p>
+      <form>
+        <table>
+          <tbody>
+            <tr>
+              <td>Product Number:</td>
+              <td><input
+                type="text"
+                id="productNumber"
+                name="productNumber"
+                value={product.productNumber}
+                /></td>
+            </tr>
+            <tr>
+              <td>Product Name:</td>
+              <td><input
+                type="text"
+                id="productName"
+                name="productName"
+                value={product.productName}
+                /></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </>
+  )
 }
 
 function ViewAllProductsPage() {
@@ -74,13 +144,12 @@ function ViewAllProductsPage() {
     fetch('http://localhost:3000/api/products')
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         assignToProducts(data);
       })
       .catch((err) => {
         console.log(err.message);
       });
-  }, []);
+  });
   return (
     <ProductsTable products={products} />
   );
@@ -94,11 +163,27 @@ function ViewOneProductPage() {
   );
 }
 
-function EditOneProductPage() {
+function CreateOneProductPage() {
   return (
-    <>
-    edit one product
-    </>
+    <ProductCreateForm />
+  );
+}
+
+function EditOneProductPage() {
+  const [productE, assignToProductE] = useState(EMPTY_PRODUCT);
+  const { productNumber } = useParams();
+  useEffect(() => {
+    fetch('http://localhost:3000/api/products/'+productNumber)
+      .then((response) => response.json())
+      .then((data) => {
+        assignToProductE(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  });
+  return (
+    <ProductEditForm product={productE} />
   );
 }
 
