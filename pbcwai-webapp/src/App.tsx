@@ -74,9 +74,9 @@ interface ProductEditProps {
 }
 
 function ProductsTable({ products }: ProductsProps) {
+  const [scrumSearchName, assignTo_scrumSearchName] = useState('');
   const tableHeading = (
     <tr>
-      <th></th>
       <th></th>
       <th></th>
       <th>Product Number</th>
@@ -88,7 +88,12 @@ function ProductsTable({ products }: ProductsProps) {
       <th>Methodology</th>
     </tr>
   );
-  const tableRows = products.map((product) =>
+  var filteredProducts = products;
+  if (scrumSearchName !== '') {
+    filteredProducts = filteredProducts.filter(
+      (elem) => elem.scrumMasterName === scrumSearchName);
+  }
+  const tableRows = filteredProducts.map((product) =>
     <tr key={product.productNumber}>
       <td><Link to={'/edit/' + product.productNumber}>Edit</Link></td>
       <td><Link to={'/delete/' + product.productNumber}>Delete</Link></td>
@@ -103,8 +108,15 @@ function ProductsTable({ products }: ProductsProps) {
   );
   return (
     <>
-      <p>Total of {products.length} products displayed.</p>
+      <p>Total of {filteredProducts.length} products displayed.</p>
       <p><Link to={'/create'}>Add</Link> a new product.</p>
+      <p>Filter on Scrum Master: <input
+                type="text"
+                id="scrumSearchName"
+                name="scrumSearchName"
+                value={scrumSearchName}
+                onChange={(e) => assignTo_scrumSearchName(e.target.value)}
+                /></p>
       <table>
         <thead>
           {tableHeading}
