@@ -12,16 +12,6 @@ import './App.css';
 // Note, for any uses of useEffect(), providing the second "optional" arg
 // even if the empty array is necessary to avoid infinite useEffect() calls.
 
-const EMPTY_PRODUCT = {
-  "productNumber": "",
-  "productName": "",
-  "scrumMasterName": "",
-  "productOwnerName": "",
-  "developerNames": [],
-  "startDate": "",
-  "methodology": ""
-};
-
 interface Product {
   productNumber: string;
   productName: string;
@@ -30,6 +20,10 @@ interface Product {
   developerNames: Array<string>;
   startDate: string;
   methodology: string;
+}
+
+interface ProductsProps {
+  products: Array<Product>;
 }
 
 interface ProductEditProps {
@@ -54,10 +48,6 @@ interface ProductEditProps {
   assignTo_startDate: (x: string) => void;
   methodology: string;
   assignTo_methodology: (x: string) => void;
-}
-
-interface ProductsProps {
-  products: Array<Product>;
 }
 
 function ProductsTable({ products }: ProductsProps) {
@@ -155,7 +145,7 @@ function ProductEditForm({
     <>
       <h2>Edit a product</h2>
       <p><Link to={'/'}>Return</Link> to the product listing page.</p>
-      <form>
+      <form onSubmit={handleProductEditFormSubmit}>
         <table>
           <tbody>
             <tr>
@@ -165,6 +155,7 @@ function ProductEditForm({
                 id="productNumber"
                 name="productNumber"
                 value={productNumber}
+                readOnly
                 /></td>
             </tr>
             <tr>
@@ -267,6 +258,10 @@ function ProductEditForm({
                 onChange={(e) => assignTo_methodology(e.target.value)}
                 /></td>
             </tr>
+            <tr>
+              <td></td>
+              <td><button type="submit">Save Changes</button></td>
+            </tr>
           </tbody>
         </table>
       </form>
@@ -362,6 +357,11 @@ function EditOneProductPage() {
       assignTo_methodology={assignTo_methodology}
     />
   );
+}
+
+function handleProductEditFormSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  console.log('save button clicked');
 }
 
 function DeleteOneProductPage() {
