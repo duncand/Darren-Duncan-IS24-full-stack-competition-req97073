@@ -26,6 +26,29 @@ interface ProductsProps {
   products: Array<Product>;
 }
 
+interface ProductCreateProps {
+  productName: string;
+  assignTo_productName: (x: string) => void;
+  scrumMasterName: string;
+  assignTo_scrumMasterName: (x: string) => void;
+  productOwnerName: string;
+  assignTo_productOwnerName: (x: string) => void;
+  developerNames_1: string;
+  assignTo_developerNames_1: (x: string) => void;
+  developerNames_2: string;
+  assignTo_developerNames_2: (x: string) => void;
+  developerNames_3: string;
+  assignTo_developerNames_3: (x: string) => void;
+  developerNames_4: string;
+  assignTo_developerNames_4: (x: string) => void;
+  developerNames_5: string;
+  assignTo_developerNames_5: (x: string) => void;
+  startDate: string;
+  assignTo_startDate: (x: string) => void;
+  methodology: string;
+  assignTo_methodology: (x: string) => void;
+}
+
 interface ProductEditProps {
   productNumber: string;
   productName: string;
@@ -95,21 +118,142 @@ function ProductsTable({ products }: ProductsProps) {
   )
 }
 
-function ProductCreateForm() {
+function ProductCreateForm({
+      productName,
+      assignTo_productName,
+      scrumMasterName,
+      assignTo_scrumMasterName,
+      productOwnerName,
+      assignTo_productOwnerName,
+      developerNames_1,
+      assignTo_developerNames_1,
+      developerNames_2,
+      assignTo_developerNames_2,
+      developerNames_3,
+      assignTo_developerNames_3,
+      developerNames_4,
+      assignTo_developerNames_4,
+      developerNames_5,
+      assignTo_developerNames_5,
+      startDate,
+      assignTo_startDate,
+      methodology,
+      assignTo_methodology,
+    }: ProductCreateProps) {
   return (
     <>
       <h2>Add a product</h2>
       <p><Link to={'/'}>Return</Link> to the product listing page.</p>
-      <form>
+      <form onSubmit={handleProductCreateFormSubmit}>
         <table>
           <tbody>
+            <tr>
+              <td>Product Number:</td>
+              <td>(Will be generated.)</td>
+            </tr>
             <tr>
               <td>Product Name:</td>
               <td><input
                 type="text"
                 id="productName"
                 name="productName"
+                value={productName}
+                onChange={(e) => assignTo_productName(e.target.value)}
                 /></td>
+            </tr>
+            <tr>
+              <td>Scrum Master:</td>
+              <td><input
+                type="text"
+                id="scrumMasterName"
+                name="scrumMasterName"
+                value={scrumMasterName}
+                onChange={(e) => assignTo_scrumMasterName(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Product Owner:</td>
+              <td><input
+                type="text"
+                id="productOwnerName"
+                name="productOwnerName"
+                value={productOwnerName}
+                onChange={(e) => assignTo_productOwnerName(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 1:</td>
+              <td><input
+                type="text"
+                id="developerNames_1"
+                name="developerNames_1"
+                value={developerNames_1}
+                onChange={(e) => assignTo_developerNames_1(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 2:</td>
+              <td><input
+                type="text"
+                id="developerNames_2"
+                name="developerNames_2"
+                value={developerNames_2}
+                onChange={(e) => assignTo_developerNames_2(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 3:</td>
+              <td><input
+                type="text"
+                id="developerNames_3"
+                name="developerNames_3"
+                value={developerNames_3}
+                onChange={(e) => assignTo_developerNames_3(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 4:</td>
+              <td><input
+                type="text"
+                id="developerNames_4"
+                name="developerNames_4"
+                value={developerNames_4}
+                onChange={(e) => assignTo_developerNames_4(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 5:</td>
+              <td><input
+                type="text"
+                id="developerNames_5"
+                name="developerNames_5"
+                value={developerNames_5}
+                onChange={(e) => assignTo_developerNames_5(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Start Date:</td>
+              <td><input
+                type="text"
+                id="startDate"
+                name="startDate"
+                value={startDate}
+                onChange={(e) => assignTo_startDate(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Methodology:</td>
+              <td><input
+                type="text"
+                id="methodology"
+                name="methodology"
+                value={methodology}
+                onChange={(e) => assignTo_methodology(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><button type="submit">Save Changes</button></td>
             </tr>
           </tbody>
         </table>
@@ -295,9 +439,77 @@ function ViewOneProductPage() {
 }
 
 function CreateOneProductPage() {
+  const [productName, assignTo_productName] = useState('');
+  const [scrumMasterName, assignTo_scrumMasterName] = useState('');
+  const [productOwnerName, assignTo_productOwnerName] = useState('');
+  const [developerNames_1, assignTo_developerNames_1] = useState('');
+  const [developerNames_2, assignTo_developerNames_2] = useState('');
+  const [developerNames_3, assignTo_developerNames_3] = useState('');
+  const [developerNames_4, assignTo_developerNames_4] = useState('');
+  const [developerNames_5, assignTo_developerNames_5] = useState('');
+  const [startDate, assignTo_startDate] = useState('');
+  const [methodology, assignTo_methodology] = useState('');
   return (
-    <ProductCreateForm />
+    <ProductCreateForm
+      productName={productName ?? ''}
+      assignTo_productName={assignTo_productName}
+      scrumMasterName={scrumMasterName ?? ''}
+      assignTo_scrumMasterName={assignTo_scrumMasterName}
+      productOwnerName={productOwnerName ?? ''}
+      assignTo_productOwnerName={assignTo_productOwnerName}
+      developerNames_1={developerNames_1 ?? ''}
+      assignTo_developerNames_1={assignTo_developerNames_1}
+      developerNames_2={developerNames_2 ?? ''}
+      assignTo_developerNames_2={assignTo_developerNames_2}
+      developerNames_3={developerNames_3 ?? ''}
+      assignTo_developerNames_3={assignTo_developerNames_3}
+      developerNames_4={developerNames_4 ?? ''}
+      assignTo_developerNames_4={assignTo_developerNames_4}
+      developerNames_5={developerNames_5 ?? ''}
+      assignTo_developerNames_5={assignTo_developerNames_5}
+      startDate={startDate ?? ''}
+      assignTo_startDate={assignTo_startDate}
+      methodology={methodology ?? ''}
+      assignTo_methodology={assignTo_methodology}
+    />
   );
+}
+
+function handleProductCreateFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  // Prevent page from submitting.
+  event.preventDefault();
+  const developerNames = [
+    (document.getElementById('developerNames_1') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_2') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_3') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_4') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_5') as HTMLInputElement).value.trim(),
+  ];
+  const product = {
+    productName: (document.getElementById('productName') as HTMLInputElement).value.trim(),
+    scrumMasterName: (document.getElementById('scrumMasterName') as HTMLInputElement).value.trim(),
+    productOwnerName: (document.getElementById('productOwnerName') as HTMLInputElement).value.trim(),
+    developerNames: developerNames.filter((elem) => elem !== ''),
+    startDate: (document.getElementById('startDate') as HTMLInputElement).value.trim(),
+    methodology: (document.getElementById('methodology') as HTMLInputElement).value.trim(),
+  }
+  console.log('save button clicked with'+JSON.stringify(product));
+  fetch('http://localhost:3000/api/products/', {
+      method: 'POST',
+      body: JSON.stringify(product),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+    //.then((response) => response.json())
+    .then((data) => {
+      alert('Changes were saved.');
+    })
+    .catch((err) => {
+      alert('Failed to save changes: ' + err.message
+        + ' see console for details');
+      console.log(err.message);
+    });
 }
 
 function EditOneProductPage() {
@@ -312,7 +524,6 @@ function EditOneProductPage() {
   const [developerNames_5, assignTo_developerNames_5] = useState('');
   const [startDate, assignTo_startDate] = useState('');
   const [methodology, assignTo_methodology] = useState('');
-
   useEffect(() => {
     fetch('http://localhost:3000/api/products/'+productNumber)
       .then((response) => response.json())
