@@ -359,9 +359,42 @@ function EditOneProductPage() {
   );
 }
 
-function handleProductEditFormSubmit(e: React.FormEvent) {
-  e.preventDefault();
-  console.log('save button clicked');
+function handleProductEditFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  // Prevent page from submitting.
+  event.preventDefault();
+  const productNumber = (document.getElementById('productNumber') as HTMLInputElement).value.trim();
+  const developerNames = [
+    (document.getElementById('developerNames_1') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_2') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_3') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_4') as HTMLInputElement).value.trim(),
+    (document.getElementById('developerNames_5') as HTMLInputElement).value.trim(),
+  ];
+  const product = {
+    productNumber: productNumber,
+    productName: (document.getElementById('productName') as HTMLInputElement).value.trim(),
+    scrumMasterName: (document.getElementById('scrumMasterName') as HTMLInputElement).value.trim(),
+    productOwnerName: (document.getElementById('productOwnerName') as HTMLInputElement).value.trim(),
+    developerNames: developerNames.filter((elem) => elem !== ''),
+    startDate: (document.getElementById('startDate') as HTMLInputElement).value.trim(),
+    methodology: (document.getElementById('methodology') as HTMLInputElement).value.trim(),
+  }
+  console.log('save button clicked with'+JSON.stringify(product));
+  fetch('http://localhost:3000/api/products/'+productNumber, {
+      method: 'PUT',
+      body: JSON.stringify(product),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      alert('Changes were saved.');
+    })
+    .catch((err) => {
+      alert('Failed to save changes: ' + err.message);
+      console.log(err.message);
+    });
 }
 
 function DeleteOneProductPage() {
