@@ -19,7 +19,12 @@ async function bootstrap() {
   // "...is not allowed by access-control-allow-origin. status code 200".
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
     next();
+  });
+  app.enableCors({
+    origin: ['http://localhost:3000'],
   });
 
   // Generate Swagger docs from the implementing code.
