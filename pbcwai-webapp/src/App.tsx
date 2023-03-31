@@ -32,8 +32,28 @@ interface Product {
   methodology: string;
 }
 
-interface ProductProps {
-  product: Product;
+interface ProductEditProps {
+  productNumber: string;
+  productName: string;
+  assignTo_productName: (x: string) => void;
+  scrumMasterName: string;
+  assignTo_scrumMasterName: (x: string) => void;
+  productOwnerName: string;
+  assignTo_productOwnerName: (x: string) => void;
+  developerNames_1: string;
+  assignTo_developerNames_1: (x: string) => void;
+  developerNames_2: string;
+  assignTo_developerNames_2: (x: string) => void;
+  developerNames_3: string;
+  assignTo_developerNames_3: (x: string) => void;
+  developerNames_4: string;
+  assignTo_developerNames_4: (x: string) => void;
+  developerNames_5: string;
+  assignTo_developerNames_5: (x: string) => void;
+  startDate: string;
+  assignTo_startDate: (x: string) => void;
+  methodology: string;
+  assignTo_methodology: (x: string) => void;
 }
 
 interface ProductsProps {
@@ -108,7 +128,29 @@ function ProductCreateForm() {
   )
 }
 
-function ProductEditForm({ product }: ProductProps) {
+function ProductEditForm({
+      productNumber,
+      productName,
+      assignTo_productName,
+      scrumMasterName,
+      assignTo_scrumMasterName,
+      productOwnerName,
+      assignTo_productOwnerName,
+      developerNames_1,
+      assignTo_developerNames_1,
+      developerNames_2,
+      assignTo_developerNames_2,
+      developerNames_3,
+      assignTo_developerNames_3,
+      developerNames_4,
+      assignTo_developerNames_4,
+      developerNames_5,
+      assignTo_developerNames_5,
+      startDate,
+      assignTo_startDate,
+      methodology,
+      assignTo_methodology,
+    }: ProductEditProps) {
   return (
     <>
       <h2>Edit a product</h2>
@@ -122,7 +164,7 @@ function ProductEditForm({ product }: ProductProps) {
                 type="text"
                 id="productNumber"
                 name="productNumber"
-                value={product.productNumber}
+                value={productNumber}
                 /></td>
             </tr>
             <tr>
@@ -131,7 +173,98 @@ function ProductEditForm({ product }: ProductProps) {
                 type="text"
                 id="productName"
                 name="productName"
-                value={product.productName}
+                value={productName}
+                onChange={(e) => assignTo_productName(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Scrum Master:</td>
+              <td><input
+                type="text"
+                id="scrumMasterName"
+                name="scrumMasterName"
+                value={scrumMasterName}
+                onChange={(e) => assignTo_scrumMasterName(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Product Owner:</td>
+              <td><input
+                type="text"
+                id="productOwnerName"
+                name="productOwnerName"
+                value={productOwnerName}
+                onChange={(e) => assignTo_productOwnerName(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 1:</td>
+              <td><input
+                type="text"
+                id="developerNames_1"
+                name="developerNames_1"
+                value={developerNames_1}
+                onChange={(e) => assignTo_developerNames_1(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 2:</td>
+              <td><input
+                type="text"
+                id="developerNames_2"
+                name="developerNames_2"
+                value={developerNames_2}
+                onChange={(e) => assignTo_developerNames_2(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 3:</td>
+              <td><input
+                type="text"
+                id="developerNames_3"
+                name="developerNames_3"
+                value={developerNames_3}
+                onChange={(e) => assignTo_developerNames_3(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 4:</td>
+              <td><input
+                type="text"
+                id="developerNames_4"
+                name="developerNames_4"
+                value={developerNames_4}
+                onChange={(e) => assignTo_developerNames_4(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Developer Name 5:</td>
+              <td><input
+                type="text"
+                id="developerNames_5"
+                name="developerNames_5"
+                value={developerNames_5}
+                onChange={(e) => assignTo_developerNames_5(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Start Date:</td>
+              <td><input
+                type="text"
+                id="startDate"
+                name="startDate"
+                value={startDate}
+                onChange={(e) => assignTo_startDate(e.target.value)}
+                /></td>
+            </tr>
+            <tr>
+              <td>Methodology:</td>
+              <td><input
+                type="text"
+                id="methodology"
+                name="methodology"
+                value={methodology}
+                onChange={(e) => assignTo_methodology(e.target.value)}
                 /></td>
             </tr>
           </tbody>
@@ -142,12 +275,12 @@ function ProductEditForm({ product }: ProductProps) {
 }
 
 function ViewAllProductsPage() {
-  const [products, assignToProducts] = useState([]);
+  const [products, assignTo_products] = useState([]);
   useEffect(() => {
     fetch('http://localhost:3000/api/products')
       .then((response) => response.json())
       .then((data) => {
-        assignToProducts(data);
+        assignTo_products(data);
       })
       .catch((err) => {
         console.log(err.message);
@@ -173,20 +306,61 @@ function CreateOneProductPage() {
 }
 
 function EditOneProductPage() {
-  const [productE, assignToProductE] = useState(EMPTY_PRODUCT);
   const { productNumber } = useParams();
+  const [productName, assignTo_productName] = useState('');
+  const [scrumMasterName, assignTo_scrumMasterName] = useState('');
+  const [productOwnerName, assignTo_productOwnerName] = useState('');
+  const [developerNames_1, assignTo_developerNames_1] = useState('');
+  const [developerNames_2, assignTo_developerNames_2] = useState('');
+  const [developerNames_3, assignTo_developerNames_3] = useState('');
+  const [developerNames_4, assignTo_developerNames_4] = useState('');
+  const [developerNames_5, assignTo_developerNames_5] = useState('');
+  const [startDate, assignTo_startDate] = useState('');
+  const [methodology, assignTo_methodology] = useState('');
+
   useEffect(() => {
     fetch('http://localhost:3000/api/products/'+productNumber)
       .then((response) => response.json())
       .then((data) => {
-        assignToProductE(data);
+        assignTo_productName(data.productName);
+        assignTo_scrumMasterName(data.scrumMasterName);
+        assignTo_productOwnerName(data.productOwnerName);
+        assignTo_developerNames_1(data.developerNames.at(0) ?? '');
+        assignTo_developerNames_2(data.developerNames.at(1) ?? '');
+        assignTo_developerNames_3(data.developerNames.at(2) ?? '');
+        assignTo_developerNames_4(data.developerNames.at(3) ?? '');
+        assignTo_developerNames_5(data.developerNames.at(4) ?? '');
+        assignTo_startDate(data.startDate);
+        assignTo_methodology(data.methodology);
       })
       .catch((err) => {
         console.log(err.message);
       });
   }, []);
   return (
-    <ProductEditForm product={productE} />
+    <ProductEditForm
+      productNumber={productNumber ?? ''}
+      productName={productName ?? ''}
+      assignTo_productName={assignTo_productName}
+      scrumMasterName={scrumMasterName ?? ''}
+      assignTo_scrumMasterName={assignTo_scrumMasterName}
+      productOwnerName={productOwnerName ?? ''}
+      assignTo_productOwnerName={assignTo_productOwnerName}
+      developerNames_1={developerNames_1 ?? ''}
+      assignTo_developerNames_1={assignTo_developerNames_1}
+      developerNames_2={developerNames_2 ?? ''}
+      assignTo_developerNames_2={assignTo_developerNames_2}
+      developerNames_3={developerNames_3 ?? ''}
+      assignTo_developerNames_3={assignTo_developerNames_3}
+      developerNames_4={developerNames_4 ?? ''}
+      assignTo_developerNames_4={assignTo_developerNames_4}
+      developerNames_5={developerNames_5 ?? ''}
+      assignTo_developerNames_5={assignTo_developerNames_5}
+      startDate={startDate ?? ''}
+      assignTo_startDate={assignTo_startDate}
+      methodology={methodology ?? ''}
+      assignTo_methodology={assignTo_methodology}
+    />
   );
 }
 
